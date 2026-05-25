@@ -8,17 +8,6 @@
 
 <sub>One library across **AniList · Bangumi · MAL · Kitsu · Annict · Simkl · Shikimori**, plus a built-in pilgrimage camera powered by **Anitabi**.</sub>
 
-<br />
-
-<a href="https://apps.apple.com/us/app/aniseekr-anime-tracker/id6755444960">
-  <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" height="54" />
-</a>
-&nbsp;&nbsp;
-<a href="https://play.google.com/store/apps/details?id=com.kidneyweakx.aniseekr">
-  <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="78" />
-</a>
-
-<br />
 
 [![Website](https://img.shields.io/badge/aniseekr.moe-0A1929?style=for-the-badge&logo=safari&logoColor=white)](https://aniseekr.moe/)
 [![Privacy](https://img.shields.io/badge/Privacy-No_Tracking-2E7D32?style=for-the-badge&logo=protondrive&logoColor=white)](https://aniseekr.moe/privacy)
