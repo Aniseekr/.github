@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/Aniseekr/aniseekr/main/assets/icon.png" alt="Aniseekr" width="112" height="112" />
+<img src="./logo.png" alt="Aniseekr" width="112" height="112" />
 
 # Aniseekr
 
@@ -13,7 +13,6 @@
 [![Website](https://img.shields.io/badge/aniseekr.moe-0A1929?style=for-the-badge&logo=safari&logoColor=white)](https://aniseekr.moe/)
 [![App Store](https://img.shields.io/badge/App_Store-000000?style=for-the-badge&logo=apple&logoColor=white)](https://apps.apple.com/us/app/aniseekr-anime-tracker/id6755444960)
 [![Google Play](https://img.shields.io/badge/Google_Play-414141?style=for-the-badge&logo=googleplay&logoColor=white)](https://play.google.com/store/apps/details?id=com.kidneyweakx.aniseekr)
-[![X](https://img.shields.io/badge/@aniseekr-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/aniseekr)
 
 </div>
 
