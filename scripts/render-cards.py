@@ -27,15 +27,24 @@ OUT = Path(__file__).resolve().parent.parent / "profile"
 INK, PAPER, ORANGE, LEMON, CARD = "#080808", "#F4F1EA", "#FF9F0A", "#FFD966", "#0B0B0C"
 
 HEADER_TEXT = {
-    "Bangers": "ANIME TRACKER · PILGRIMAGE COMPANION",
+    "Bangers": "ANIME TRACKER · PILGRIMAGE COMPANIONNEXT ANIME?I'M ON IT.",
     "Nunito": "Track every anime. Visit every scene.iOS · Android · aniseekr.moe",
-    "Zen": "番，交給我找。",
+    "Zen": "番，交給我找。アニメ探しは、まかせてニン。",
 }
 PANELS = [
     ("01", "TRACK", ["7 sources, one library.", "Two-way sync, or stay offline."], "phone"),
     ("02", "AIRING", ["This season's schedule,", "with episode reminders."], "read"),
     ("03", "VISIT", ["Scene map, trip planner,", "and a shot-matching camera."], "camera"),
 ]
+
+# The tagline as aniseekr.moe words it (src/lib/i18n/messages.ts), one balloon each.
+# (lines, font family, font size, em width per glyph)
+TAGLINES = [
+    (["番，交給我找。"], "Zen", 22, 1.0),
+    (["NEXT ANIME?", "I'M ON IT."], "Bangers", 23, 0.42),
+    (["アニメ探しは、", "まかせてニン。"], "Zen", 19, 1.0),
+]
+SLOT = 3.0  # seconds each language stays up
 
 # height / width of each pose image, so it is never squashed
 POSE_RATIO = {"phone": 640 / 548, "read": 613 / 560, "camera": 625 / 560, "wave": 581 / 560}
@@ -136,6 +145,49 @@ def focus_lines(cx: float, cy: float, inner: float, outer: float, n: int, seed: 
     return "".join(paths)
 
 
+def balloons() -> str:
+    """One balloon per tagline, anchored at the tail tip; each pops in on its turn."""
+    n, cycle = len(TAGLINES), SLOT * len(TAGLINES)
+    tip_x, tip_y = 676, 112  # tail tip, pointing at Seekr's raised paw
+    out = []
+    for i, (lines, family, size, em) in enumerate(TAGLINES):
+        w = max(len(l) for l in lines) * size * em + 34
+        lh = size * 1.18
+        h = lh * len(lines) + 22
+        x1, y1 = -30, -20  # box's bottom-right, relative to the tip
+        x0, y0 = x1 - w, y1 - h
+        r = 12
+        box = (
+            f"M{x0 + r:.1f} {y0:.1f} L{x1 - r:.1f} {y0:.1f} Q{x1:.1f} {y0:.1f} {x1:.1f} {y0 + r:.1f} "
+            f"L{x1:.1f} {y1 - r:.1f} Q{x1:.1f} {y1:.1f} {x1 - r:.1f} {y1:.1f} L{x1 - 14:.1f} {y1:.1f} L0 0 "
+            f"L{x1 - 44:.1f} {y1:.1f} L{x0 + r:.1f} {y1:.1f} Q{x0:.1f} {y1:.1f} {x0:.1f} {y1 - r:.1f} "
+            f"L{x0:.1f} {y0 + r:.1f} Q{x0:.1f} {y0:.1f} {x0 + r:.1f} {y0:.1f} Z"
+        )
+        cx = (x0 + x1) / 2
+        first = y0 + 11 + size * 0.86
+        font = "'Zen', 'Hiragino Sans', sans-serif" if family == "Zen" else "'Bangers', Impact, sans-serif"
+        spacing = ' letter-spacing="1.5"' if family == "Bangers" else ""
+        text = "".join(
+            f'<text x="{cx:.1f}" y="{first + j * lh:.1f}" text-anchor="middle" font-family="{font}" font-size="{size}"{spacing} fill="{INK}">{line.replace("\'", "&#39;")}</text>'
+            for j, line in enumerate(lines)
+        )
+        a, b = i / n, (i + 1) / n
+        if i == 0:
+            vis = f'values="1;0" keyTimes="0;{b:.4f}"'
+            pop = f'values="0.4;1.12;1;1" keyTimes="0;0.025;0.04;1"'
+        else:
+            vis = f'values="0;1;0" keyTimes="0;{a:.4f};{min(b, 0.9999):.4f}"' if b < 1 else f'values="0;1" keyTimes="0;{a:.4f}"'
+            pop = f'values="1;0.4;1.12;1;1" keyTimes="0;{a:.4f};{a + 0.025:.4f};{a + 0.04:.4f};1"'
+        out.append(
+            f'<g opacity="{1 if i == 0 else 0}">'
+            f'<animate attributeName="opacity" {vis} calcMode="discrete" dur="{cycle}s" begin="1.1s" repeatCount="indefinite"/>'
+            f'<g transform="translate({tip_x} {tip_y})">'
+            f'<animateTransform attributeName="transform" type="scale" {pop} dur="{cycle}s" begin="1.1s" repeatCount="indefinite" additive="sum"/>'
+            f'<path d="{box}" fill="#fff" stroke="{INK}" stroke-width="3" stroke-linejoin="round"/>{text}</g></g>'
+        )
+    return "".join(out)
+
+
 def header() -> str:
     W, H = 900, 240
     sx, sy = 742, 118  # Seekr's centre: halftone and focus lines radiate from here
@@ -178,14 +230,10 @@ def header() -> str:
     </g>
   </g>
 
-  <!-- speech balloon pops in -->
+  <!-- speech balloon pops in, then cycles the tagline through the site's languages -->
   <g opacity="0">
     <animate attributeName="opacity" values="0;1" dur="0.01s" begin="1.1s" fill="freeze"/>
-    <g transform="translate(560 58)">
-      <animateTransform attributeName="transform" type="scale" values="0.4;1.12;1" keyTimes="0;0.6;1" dur="0.35s" begin="1.1s" fill="freeze" additive="sum"/>
-      <path d="M-82 -26 Q-82 -38 -70 -38 L70 -38 Q82 -38 82 -26 L82 10 Q82 22 70 22 L40 22 L58 44 L14 22 L-70 22 Q-82 22 -82 10 Z" fill="#fff" stroke="{INK}" stroke-width="3" stroke-linejoin="round"/>
-      <text x="0" y="0" text-anchor="middle" font-family="'Zen', 'Hiragino Sans', sans-serif" font-size="22" fill="{INK}">番，交給我找。</text>
-    </g>
+    {balloons()}
   </g>
 
   <g opacity="0">
@@ -206,7 +254,7 @@ def header() -> str:
 
 
 def panels() -> str:
-    W, H = 900, 316
+    W, H = 900, 330
     top, bot = 14, H - 24
     # Gutters slant the same way, like two cuts across one manga page.
     cuts = [(14, 14), (300, 278), (594, 572), (876, 876)]
@@ -236,7 +284,7 @@ def panels() -> str:
       <g opacity="{0.22 if lit else 0.5}">{dots}</g>
       <g>
         <animateTransform attributeName="transform" type="translate" values="0 0;0 -5;0 0" dur="2.6s" begin="{i * 0.7:.1f}s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
-        <image href="{pose(name, 118)}" x="{rb - 128}" y="{bot - int(118 * POSE_RATIO[name]) - 6}" width="118" height="{int(118 * POSE_RATIO[name])}"/>
+        <image href="{pose(name, 118)}" x="{(lb + 1) if i == 0 else (rb - 128)}" y="{bot - int(118 * POSE_RATIO[name]) - 6}" width="118" height="{int(118 * POSE_RATIO[name])}"/>
       </g>
     </g>
     <polygon points="{poly}" fill="none" stroke="{PAPER}" stroke-width="2.5" stroke-linejoin="round"/>
